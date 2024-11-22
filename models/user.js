@@ -1,5 +1,8 @@
 /** User class for message.ly */
 const db = require("../db");
+const bcrypt = require("bcrypt")
+const jwt = require("jsonwebtoken")
+const BCRYPT_WORK_FACTOR = require("../config")
 const ExpressError = require("../expressError");
 
 
@@ -11,7 +14,16 @@ class User {
    *    {username, password, first_name, last_name, phone}
    */
 
-  static async register({username, password, first_name, last_name, phone}) { }
+  static async register({username, password, first_name, last_name, phone}) { 
+    const hashedPwd = await bcrypt.hash(password, BCRYPT_WORK_FACTOR)
+
+    const results = await db.query(`
+    INSERT INTO users (username, password, first_name,  last_name, phone, join_at, last_login_at) 
+    VALUES ($1, $2, $3, $4, $5, current_timestamp, current_timestamp RETURNING username, password, first_name, last_name, phone)`, [username, hashedPwd, first_name, last_name, phone])
+
+    return results.rows[0]
+    
+  }
 
   /** Authenticate: is this username/password valid? Returns boolean. */
 
@@ -26,7 +38,7 @@ class User {
 
   static async all() { 
       const results = await db.query(`
-      SELECT username, password, first_name, last_name, phone, join_at, last_login_at FROM users`)
+      SELECT username, first_name, last_name, phone, join_at, last_login_at FROM users`)
 
       return results.rows
    
@@ -43,7 +55,7 @@ class User {
 
   static async get(username) {
     const results = await db.query(`
-    SELECT username, password, first_name, last_name, phone, join_at, last_login_at 
+    SELECT username, first_name, last_name, phone, join_at, last_login_at 
     FROM users 
     WHERE username=$1
     `, [username])
