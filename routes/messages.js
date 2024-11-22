@@ -24,7 +24,7 @@ router.get("/:id", ensureLoggedIn, async function(req, res, next){
         const message = await Message.get(req.params.id);
         const username = req.user.username;
 
-        if (message.to_user != username && message.from_user != username) {
+        if (message.to_user !== username && message.from_user !== username) {
             throw new ExpressError("Cannot read this message", 401);
         } 
 
@@ -63,5 +63,22 @@ router.post("/", ensureLoggedIn, async function(req, res, next) {
  * Make sure that the only the intended recipient can mark as read.
  *
  **/
+
+router.post("/:id/read", ensureLoggedIn, async function(req, res, next) {
+    try {
+        let username = req.user.username;
+        let message = await Message.get(req.params.id)
+        
+        if (msg.to_user.username !== username) {
+            throw new ExpressError("Cannot set this message to read", 401);
+          }
+        const msg = await Message.markRead(req.params.id);
+        return res.json({msg});
+        
+    } catch (e) {
+        next(e)
+    }
+    
+})
 
 module.exports = router;
