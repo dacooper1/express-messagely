@@ -19,9 +19,15 @@ const Message = require("../models/message");
  *
  **/
 
-router.get("/:id", ensureCorrectUser, async function(req, res, next){
+router.get("/:id", ensureLoggedIn, async function(req, res, next){
     try {
-        const message = Message.get(req.params.id)
+        const message = await Message.get(req.params.id);
+        const username = req.user.username;
+
+        if (message.to_user != username && message.from_user != username) {
+            throw new ExpressError("Cannot read this message", 401);
+        } 
+
         return res.json({message}) 
     } catch (e) {
         next(e)
@@ -35,6 +41,19 @@ router.get("/:id", ensureCorrectUser, async function(req, res, next){
  *   {message: {id, from_username, to_username, body, sent_at}}
  *
  **/
+
+router.post("/", ensureLoggedIn, async function(req, res, next) {
+    try {
+        const {to_username, body} = req.body;
+        const fromUser = req.user.username;
+
+        const newMsg = await Message.create(fromUser, to_username, body)
+
+        return res.json({newMsg})
+    } catch (e) {
+        next(e)
+    }
+})
 
 
 /** POST/:id/read - mark message as read:
