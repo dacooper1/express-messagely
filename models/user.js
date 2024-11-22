@@ -1,5 +1,6 @@
 /** User class for message.ly */
-
+const db = require("../db");
+const ExpressError = require("../expressError");
 
 
 /** User of the site. */
@@ -23,7 +24,12 @@ class User {
   /** All: basic info on all users:
    * [{username, first_name, last_name, phone}, ...] */
 
-  static async all() { }
+  static async all() { 
+    const results = await db.query(`
+    SELECT username, password, first_name, last_name, phone, join_at, last_login_at FROM users`)
+
+    return results.rows
+  }
 
   /** Get: get user by username
    *
