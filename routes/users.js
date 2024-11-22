@@ -1,8 +1,22 @@
+const express = require("express");
+
+const User = require("../models/user");
+
+const router = new express.Router();
+
 /** GET / - get list of users.
  *
  * => {users: [{username, first_name, last_name, phone}, ...]}
  *
  **/
+
+router.get("/", async function(req, res, next) {
+    const results = await User.all()
+
+    return res.json({user: results})
+})
+
+
 
 
 /** GET /:username - get detail of users.
