@@ -10,7 +10,7 @@ const router = new express.Router();
  *
  **/
 
-router.get("/", async function(req, res, next) {
+router.get("/", ensureLoggedIn, async function(req, res, next) {
     const results = await User.all()
 
     return res.json({user: results})
