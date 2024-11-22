@@ -25,10 +25,11 @@ class User {
    * [{username, first_name, last_name, phone}, ...] */
 
   static async all() { 
-    const results = await db.query(`
-    SELECT username, password, first_name, last_name, phone, join_at, last_login_at FROM users`)
+      const results = await db.query(`
+      SELECT username, password, first_name, last_name, phone, join_at, last_login_at FROM users`)
 
-    return results.rows
+      return results.rows
+   
   }
 
   /** Get: get user by username
@@ -40,7 +41,15 @@ class User {
    *          join_at,
    *          last_login_at } */
 
-  static async get(username) { }
+  static async get(username) {
+    const results = await db.query(`
+    SELECT username, password, first_name, last_name, phone, join_at, last_login_at 
+    FROM users 
+    WHERE username=$1
+    `, [username])
+
+    return results.rows[0]
+  }
 
   /** Return messages from this user.
    *
@@ -50,7 +59,14 @@ class User {
    *   {username, first_name, last_name, phone}
    */
 
-  static async messagesFrom(username) { }
+  static async messagesFrom(username) { 
+    const results = db.await(`
+    SELECT id, to_username, body, sent_at, read_at
+    FROM messages
+    WHERE from_username=$1`, [username])
+
+    return results.rows
+  }
 
   /** Return messages to this user.
    *
@@ -60,7 +76,14 @@ class User {
    *   {username, first_name, last_name, phone}
    */
 
-  static async messagesTo(username) { }
+  static async messagesTo(username) { 
+    const results = db.await(`
+    SELECT id, to_username, body, sent_at, read_at
+    FROM messages
+    WHERE to_username=$1`, [username])
+
+    return results.rows
+  }
 }
 
 
