@@ -33,14 +33,23 @@ class User {
     FROM users
     WHERE username=$1`, [username])
 
-    let user = result.rows[0];
+    let user = results.rows[0];
 
     return user && await bcrypt.compare(password, user.password);
   }
 
   /** Update last_login_at for user */
 
-  static async updateLoginTimestamp(username) { }
+  static async updateLoginTimestamp(username) { 
+    const results = await db.query(`
+    UPDATE users 
+    SET last_login_at = current_timestamp
+    WHERE username=$1`, [username])
+
+    if (!results.rows[0]) {
+      throw new ExpressError(`No such user: ${username}`, 404);
+    }
+  }
 
   /** All: basic info on all users:
    * [{username, first_name, last_name, phone}, ...] */
