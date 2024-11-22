@@ -2,7 +2,7 @@
 const db = require("../db");
 const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
-const BCRYPT_WORK_FACTOR = require("../config")
+const { BCRYPT_WORK_FACTOR } = require("../config");
 const ExpressError = require("../expressError");
 
 
@@ -19,7 +19,7 @@ class User {
 
     const results = await db.query(`
     INSERT INTO users (username, password, first_name,  last_name, phone, join_at, last_login_at) 
-    VALUES ($1, $2, $3, $4, $5, current_timestamp, current_timestamp RETURNING username, password, first_name, last_name, phone)`, [username, hashedPwd, first_name, last_name, phone])
+    VALUES ($1, $2, $3, $4, $5, current_timestamp, current_timestamp) RETURNING username, password, first_name, last_name, phone`, [username, hashedPwd, first_name, last_name, phone])
 
     return results.rows[0]
     
@@ -44,7 +44,7 @@ class User {
     const results = await db.query(`
     UPDATE users 
     SET last_login_at = current_timestamp
-    WHERE username=$1`, [username])
+    WHERE username=$1  RETURNING username`, [username])
 
     if (!results.rows[0]) {
       throw new ExpressError(`No such user: ${username}`, 404);

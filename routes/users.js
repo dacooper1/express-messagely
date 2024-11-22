@@ -3,6 +3,7 @@ const express = require("express");
 const User = require("../models/user");
 
 const router = new express.Router();
+const {ensureLoggedIn, ensureCorrectUser} = require("../middleware/auth");
 
 /** GET / - get list of users.
  *
@@ -46,3 +47,5 @@ router.get("/", ensureLoggedIn, async function(req, res, next) {
  *                 to_user: {username, first_name, last_name, phone}}, ...]}
  *
  **/
+
+module.exports = router;
