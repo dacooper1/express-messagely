@@ -4,6 +4,7 @@ const Messages = require("../models/message");
 
 const router = new express.Router();
 const {ensureLoggedIn, ensureCorrectUser} = require("../middleware/auth");
+const Message = require("../models/message");
 
 /** GET /:id - get detail of message.
  *
@@ -17,6 +18,15 @@ const {ensureLoggedIn, ensureCorrectUser} = require("../middleware/auth");
  * Make sure that the currently-logged-in users is either the to or from user.
  *
  **/
+
+router.get("/:id", ensureCorrectUser, async function(req, res, next){
+    try {
+        const message = Message.get(req.params.id)
+        return res.json({message}) 
+    } catch (e) {
+        next(e)
+    }
+})
 
 
 /** POST / - post message.
